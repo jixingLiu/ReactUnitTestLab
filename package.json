@@ -2,7 +2,7 @@
   "private": true,
   "author": "pilotstudioo <liujixing989@gmail.com>",
   "scripts": {
-    "build": "umi build",
+    "build": "MOCK=true umi build",
     "dev": "umi dev",
     "e2e": "cypress run",
     "e2e:ci": "start-server-and-test preview http://127.0.0.1:9572  e2e",
