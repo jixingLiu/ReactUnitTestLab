@@ -88,10 +88,10 @@ const App: React.FC = () => {
           <List.Item
             actions={[
               <Button key="edit" onClick={() => showModal(todo)}>
-                编辑
+                编 辑
               </Button>,
               <Button key="delete" danger onClick={() => deleteTodo(todo.id)}>
-                删除
+                删 除
               </Button>,
             ]}
           >
