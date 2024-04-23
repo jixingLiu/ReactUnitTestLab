@@ -9,4 +9,7 @@ export default defineConfig({
   npmClient: 'pnpm',
   tailwindcss: {},
   plugins: ['@umijs/plugins/dist/tailwindcss'],
+  mock: {
+    exclude: [], // 确保不排除mock文件
+  },
 });
