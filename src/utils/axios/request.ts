@@ -8,12 +8,15 @@ import axios, {
 
 import { ResponseModel } from './types/index';
 
+const isProd = process.env.NODE_ENV === 'production';
+const prefix = isProd ? 'https://react-unit-test-lab.vercel.app/' : '/';
+
 class HttpRequest {
   private service: AxiosInstance;
 
   constructor() {
     this.service = axios.create({
-      baseURL: '/',
+      baseURL: prefix,
       timeout: 2 * 1000,
       headers: {
         Accept: 'application/json',
