@@ -1,11 +1,7 @@
 module.exports = {
-  prefix: 'tw-',
+  // prefix: 'tw-',
   corePlugins: {
     preflight: false,
   },
-  content: [
-    './src/pages/**/*.tsx',
-    './src/components/**/*.tsx',
-    './src/layouts/**/*.tsx',
-  ],
+  content: ['./src/**/*.{ts,tsx}'],
 };

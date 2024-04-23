@@ -21,7 +21,18 @@ export default {
   },
 
   'POST /api/todos': (req: any, res: any) => {
-    if (!req.body.title || !req.body.content || !req.body.status) {
+    const { title, content, status } = req.body;
+    // 检查是否存在相同标题的 todo
+    const existingTodo = todoList.find(
+      (todo) => todo.title?.trim() === title?.trim(),
+    );
+    if (existingTodo) {
+      // 如果存在相同标题的 todo，则返回错误消息
+      return res.json({ success: false, message: 'Title already exists' });
+    }
+
+    // 如果缺少必要的字段，返回错误消息
+    if (!title || !content || !status) {
       return res.json({ success: false, message: 'Missing fields' });
     }
 

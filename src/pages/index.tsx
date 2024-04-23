@@ -63,7 +63,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className=" md:pt-6 max-w-md mx-auto">
       <div className="mb-4">
         <Select
           defaultValue="所有"

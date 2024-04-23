@@ -1,4 +1,4 @@
-import { staticFunctionsHolder } from '@/static-functions';
+import { message } from 'antd';
 import axios, {
   AxiosError,
   AxiosInstance,
@@ -38,8 +38,14 @@ class HttpRequest {
     this.service.interceptors.response.use(
       (response: AxiosResponse<ResponseModel>): AxiosResponse['data'] => {
         const { data, status, statusText } = response;
-        console.log(data, status, statusText, 'data, status, statusText ');
-        if (status === 200) {
+        const { success, message: msg } = data;
+        console.log(
+          msg,
+          success,
+          status === 200 && success,
+          'status === 200 && success',
+        );
+        if (status === 200 && success) {
           return Promise.resolve({
             success: true,
             message: statusText,
@@ -48,24 +54,25 @@ class HttpRequest {
           });
         }
 
-        let message = `${status} ${statusText}`;
+        let errorMessage = msg || `${status} ${statusText}`;
         if (status === 401) {
           // 登出
-          throw new Error(message);
+          message.error(errorMessage);
+          throw new Error(errorMessage);
         }
 
         if (status >= 400 && status < 500) {
-          message = '请求错误';
+          errorMessage = '请求错误';
         } else if (response.status >= 500) {
-          message = '服务器错误';
+          errorMessage = '服务器错误';
         }
-        staticFunctionsHolder.message?.error(message);
-
-        throw new Error(message);
+        console.log(errorMessage, '---errorMessage');
+        message.error(errorMessage);
+        // throw new Error(errorMessage);
       },
       (error: AxiosError) => {
         console.error('Response Error: ', error);
-        staticFunctionsHolder.message?.error('服务器异常');
+        message.error('服务器异常');
         return Promise.reject(error);
       },
     );
@@ -96,27 +103,6 @@ class HttpRequest {
   public delete<T = any>(url: string): Promise<ResponseModel<T>> {
     return this.request<T>({ method: 'DELETE', url });
   }
-
-  // public upload<T = string>(
-  //   fileItem: UploadFileItemModel,
-  //   config?: UploadRequestConfig
-  // ): Promise<ResponseModel<T>> | null {
-  //   // if (!import.meta.env.VITE_UPLOAD_URL) return null;
-
-  //   const formData = new FormData();
-  //   formData.append(fileItem.name, fileItem.value);
-
-  //   const uploadConfig: UploadRequestConfig = config
-  //     ? { ...config, headers: { ...config.headers, 'Content-Type': 'multipart/form-data' } }
-  //     : { headers: { 'Content-Type': 'multipart/form-data' } };
-
-  //   return this.request<T>({
-  //     method: 'POST',
-  //     // url: u,
-  //     data: formData,
-  //     ...uploadConfig,
-  //   });
-  // }
 }
 
 const httpRequest = new HttpRequest();
