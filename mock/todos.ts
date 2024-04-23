@@ -4,7 +4,8 @@ interface Todo {
   content: string;
   status: string;
 }
-export const todoList: Todo[] = [
+
+export let todoList: Todo[] = [
   {
     id: 1,
     title: '学习 TypeScript',
@@ -16,7 +17,6 @@ export const todoList: Todo[] = [
 
 export default {
   'GET /api/todos': (req: any, res: any) => {
-    console.log('/api/todos---');
     res.json({ success: true, data: todoList });
   },
 

@@ -7,17 +7,19 @@ import {
   waitFor,
 } from '@testing-library/react';
 import axios from 'axios';
+
 import App from '../pages/index'; // 替换成你的组件的实际路径
 
 // Mock axios module for HTTP requests
 jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe('Todo List App', () => {
   it('should display fetched todos', async () => {
     const todos = [
       { id: 1, title: 'Test Todo 1', content: 'Content 1', status: '待开始' },
     ];
-    axios.get.mockResolvedValue({ data: { data: todos } });
+    mockedAxios.get.mockResolvedValue({ data: { data: todos } });
 
     await act(async () => {
       render(<App />);
@@ -39,7 +41,7 @@ describe('Todo List App', () => {
   });
 
   it('should allow users to create a new todo', async () => {
-    axios.post.mockResolvedValue({});
+    mockedAxios.post.mockResolvedValue({});
 
     await act(async () => {
       render(<App />);
@@ -67,12 +69,11 @@ describe('Todo List App', () => {
   });
 
   // ... 其他测试用例
-
   it('should open a modal to edit an existing todo', async () => {
     const todos = [
       { id: 1, title: 'Test Todo 1', content: 'Content 1', status: '待开始' },
     ];
-    axios.get.mockResolvedValue({ data: { data: todos } });
+    mockedAxios.get.mockResolvedValue({ data: { data: todos } });
 
     await act(async () => {
       render(<App />);
@@ -89,8 +90,8 @@ describe('Todo List App', () => {
       { id: 1, title: 'Test Todo 1', content: 'Content 1', status: '待开始' },
       // ... more todos
     ];
-    axios.get.mockResolvedValue({ data: { data: todos } });
-    axios.put.mockResolvedValue({});
+    mockedAxios.get.mockResolvedValue({ data: { data: todos } });
+    mockedAxios.put.mockResolvedValue({});
 
     await act(async () => {
       render(<App />);
@@ -125,8 +126,8 @@ describe('Todo List App', () => {
       { id: 1, title: 'Test Todo 1', content: 'Content 1', status: '待开始' },
       // ... more todos
     ];
-    axios.get.mockResolvedValue({ data: { data: todos } });
-    axios.delete.mockResolvedValue({});
+    mockedAxios.get.mockResolvedValue({ data: { data: todos } });
+    mockedAxios.delete.mockResolvedValue({});
 
     await act(async () => {
       render(<App />);

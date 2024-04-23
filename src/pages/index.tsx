@@ -1,6 +1,6 @@
 import { Todo } from '@/types/todo';
+import request from '@/utils/axios/request';
 import { Button, Form, Input, List, Modal, Select } from 'antd';
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
 const { Option } = Select;
@@ -18,7 +18,7 @@ const App: React.FC = () => {
 
   const fetchTodos = async () => {
     try {
-      const response = await axios.get<{ data: Todo[] }>('/api/todos');
+      const response = await request.get<{ data: Todo[] }>('/api/todos');
       const data = response.data.data;
       const filteredData =
         filter === '所有'
@@ -40,10 +40,11 @@ const App: React.FC = () => {
     try {
       const values = await form.validateFields();
       if (currentTodo) {
-        await axios.put(`/api/todos/${currentTodo.id}`, values);
+        await request.put(`/api/todos/${currentTodo.id}`, values);
       } else {
-        await axios.post('/api/todos', values);
+        await request.post('/api/todos', values);
       }
+      form.resetFields();
       fetchTodos();
       setIsModalVisible(false);
     } catch (error) {
@@ -52,11 +53,12 @@ const App: React.FC = () => {
   };
 
   const handleCancel = () => {
+    form.resetFields();
     setIsModalVisible(false);
   };
 
   const deleteTodo = async (id: number) => {
-    await axios.delete(`/api/todos/${id}`);
+    await request.delete(`/api/todos/${id}`);
     fetchTodos();
   };
 

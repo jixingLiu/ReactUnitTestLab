@@ -10,6 +10,6 @@ export default defineConfig({
   tailwindcss: {},
   plugins: ['@umijs/plugins/dist/tailwindcss'],
   mock: {
-    exclude: [], // 确保不排除mock文件
+    include: [],
   },
 });
