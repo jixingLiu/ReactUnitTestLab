@@ -15,6 +15,9 @@ class HttpRequest {
     this.service = axios.create({
       baseURL: '/',
       timeout: 2 * 1000,
+      headers: {
+        Accept: 'application/json',
+      },
     });
 
     this.service.interceptors.request.use(
