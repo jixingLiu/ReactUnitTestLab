@@ -12,4 +12,7 @@ export default defineConfig({
   mock: {
     include: ['mock/**/*'],
   },
+  apiRoute: {
+    platform: 'vercel',
+  },
 });
