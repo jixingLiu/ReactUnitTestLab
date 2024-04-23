@@ -36,7 +36,7 @@ class HttpRequest {
       (response: AxiosResponse<ResponseModel>): AxiosResponse['data'] => {
         const { data, status, statusText } = response;
         console.log(data, status, statusText, 'data, status, statusText ');
-        if (statusText === 'OK') {
+        if (status === 200) {
           return Promise.resolve({
             success: true,
             message: statusText,
