@@ -4,47 +4,44 @@ import axios, {
   AxiosInstance,
   AxiosRequestConfig,
   AxiosResponse,
+  InternalAxiosRequestConfig,
 } from 'axios';
-
 import { ResponseModel } from './types/index';
 
 const isProd = process.env.NODE_ENV === 'production';
 const prefix = isProd ? 'https://react-unit-test-lab.vercel.app/' : '/';
 
 class HttpRequest {
-  private service: AxiosInstance;
+  public service: AxiosInstance;
 
   constructor() {
     this.service = axios.create({
       baseURL: prefix,
-      timeout: 2 * 1000,
+      timeout: 2000,
       headers: {
         Accept: 'application/json',
       },
     });
 
+    this.setupInterceptors();
+  }
+
+  private setupInterceptors(): void {
     this.service.interceptors.request.use(
-      (config) => {
-        /**
-         * 在此处设置 token
-         */
+      (config: InternalAxiosRequestConfig) => {
+        config.headers = config.headers || {};
+        // Example: Add Authorization header
+        // config.headers['Authorization'] = `Bearer token`;
         return config;
       },
-      (error: AxiosError) => {
-        return Promise.reject(error);
-      },
+      (error: AxiosError) => Promise.reject(error),
     );
 
     this.service.interceptors.response.use(
       (response: AxiosResponse<ResponseModel>): AxiosResponse['data'] => {
         const { data, status, statusText } = response;
         const { success, message: msg } = data;
-        console.log(
-          msg,
-          success,
-          status === 200 && success,
-          'status === 200 && success',
-        );
+        // console.log(response, 'status === 200 && success');
         if (status === 200 && success) {
           return Promise.resolve({
             success: true,

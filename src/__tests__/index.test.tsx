@@ -6,29 +6,31 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import axios from 'axios';
+import userEvent from '@testing-library/user-event';
 
-import App from '../pages/index'; // 替换成你的组件的实际路径
+import request from '@/utils/axios/request';
+import MockAdapter from 'axios-mock-adapter';
+import App from '../pages/index';
 
-// Mock axios module for HTTP requests
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+describe('App component tests', () => {
+  const mock = new MockAdapter(request.service);
+  const todosMock = [
+    { id: 1, title: 'Test Todo 1', content: 'Content 1', status: '待开始' },
+    { id: 2, title: 'Test Todo 2', content: 'Content 2', status: '进行中' },
+  ];
 
-describe('Todo List App', () => {
+  beforeEach(() => {
+    mock.reset();
+    mock.onGet('/api/todos').reply(200, { data: todosMock, success: true });
+  });
+
   it('should display fetched todos', async () => {
-    const todos = [
-      { id: 1, title: 'Test Todo 1', content: 'Content 1', status: '待开始' },
-    ];
-    mockedAxios.get.mockResolvedValue({ data: { data: todos } });
-
     await act(async () => {
       render(<App />);
     });
-
-    await waitFor(() => {
-      todos.forEach((todo) => {
-        expect(screen.getByText(todo.title)).toBeInTheDocument();
-      });
+    await waitFor(async () => {
+      expect(await screen.findByText('Test Todo 1')).toBeInTheDocument();
+      expect(await screen.getByText('Content 1 - 待开始')).toBeInTheDocument();
     });
   });
 
@@ -36,12 +38,22 @@ describe('Todo List App', () => {
     await act(async () => {
       render(<App />);
     });
-    fireEvent.click(screen.getByText('新增待办事项'));
-    expect(screen.getByText('新增待办')).toBeInTheDocument();
+
+    const addButton = await screen.getByText('新增待办事项');
+    userEvent.click(addButton);
+    await waitFor(async () => {
+      expect(await screen.findByText('新增待办')).toBeInTheDocument();
+    });
   });
 
   it('should allow users to create a new todo', async () => {
-    mockedAxios.post.mockResolvedValue({});
+    const newTodo = {
+      id: 2,
+      title: 'New Todo',
+      content: 'New content',
+      status: '待开始',
+    };
+    mock.onPost('/api/todos').reply(200, { data: newTodo, success: true }); // 使用 MockAdapter 模拟 POST 请求
 
     await act(async () => {
       render(<App />);
@@ -60,20 +72,22 @@ describe('Todo List App', () => {
     });
 
     await waitFor(() => {
-      expect(axios.post).toHaveBeenCalledWith('/api/todos', {
-        title: 'New Todo',
-        content: 'New content',
-        status: '待开始', // 默认选项
-      });
+      expect(mock.history.post.length).toBe(1); // 检查 POST 请求是否被调用
+      expect(mock.history.post[0].data).toEqual(
+        JSON.stringify({
+          title: 'New Todo',
+          content: 'New content',
+          status: '待开始',
+        }),
+      );
     });
   });
 
-  // ... 其他测试用例
   it('should open a modal to edit an existing todo', async () => {
     const todos = [
       { id: 1, title: 'Test Todo 1', content: 'Content 1', status: '待开始' },
     ];
-    mockedAxios.get.mockResolvedValue({ data: { data: todos } });
+    mock.onGet('/api/todos').reply(200, { success: true, data: todos });
 
     await act(async () => {
       render(<App />);
@@ -88,10 +102,9 @@ describe('Todo List App', () => {
   it('should allow users to edit an existing todo', async () => {
     const todos = [
       { id: 1, title: 'Test Todo 1', content: 'Content 1', status: '待开始' },
-      // ... more todos
     ];
-    mockedAxios.get.mockResolvedValue({ data: { data: todos } });
-    mockedAxios.put.mockResolvedValue({});
+    mock.onGet('/api/todos').reply(200, { data: todos, success: true });
+    mock.onPut('/api/todos/1').reply(200, { data: {}, success: true }); // 模拟 PUT 请求
 
     await act(async () => {
       render(<App />);
@@ -113,21 +126,23 @@ describe('Todo List App', () => {
     });
 
     await waitFor(() => {
-      expect(axios.put).toHaveBeenCalledWith(`/api/todos/1`, {
-        title: 'Updated Todo',
-        content: 'Updated content',
-        status: '待开始', // 默认选项
-      });
+      expect(mock.history.put.length).toBe(1); // 检查 PUT 请求是否被调用
+      expect(mock.history.put[0].data).toEqual(
+        JSON.stringify({
+          title: 'Updated Todo',
+          content: 'Updated content',
+          status: '待开始',
+        }),
+      );
     });
   });
 
   it('should allow users to delete a todo', async () => {
     const todos = [
       { id: 1, title: 'Test Todo 1', content: 'Content 1', status: '待开始' },
-      // ... more todos
     ];
-    mockedAxios.get.mockResolvedValue({ data: { data: todos } });
-    mockedAxios.delete.mockResolvedValue({});
+    mock.onGet('/api/todos').reply(200, { data: todos, success: true });
+    mock.onDelete('/api/todos/1').reply(200, { success: true, data: {} }); // 模拟 DELETE 请求
 
     await act(async () => {
       render(<App />);
@@ -138,7 +153,7 @@ describe('Todo List App', () => {
     });
 
     await waitFor(() => {
-      expect(axios.delete).toHaveBeenCalledWith(`/api/todos/1`);
+      expect(mock.history.delete.length).toBe(1); // 检查 DELETE 请求是否被调用
     });
   });
 });
